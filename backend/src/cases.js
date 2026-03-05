@@ -69,7 +69,7 @@ router.post('/', async (req, res) => {
     [id, title, description||null, JSON.stringify(steps||[]), expected_result||null, type||'functional', priority||'medium', suite_id||null, tags||null, req.user.id]
   );
   const [[row]] = await pool.execute('SELECT * FROM test_cases WHERE id=?', [id]);
-  res.status(201).json({ ...row, steps: JSON.parse(row.steps || '[]') });
+  res.status(201).json({ ...row, steps: parseSteps(row.steps) });
 });
 
 router.get('/:id', async (req, res) => {
