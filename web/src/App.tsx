@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { FileJson, GitCompare, CheckSquare, StickyNote, Braces, Sparkles, Menu, X, ExternalLink } from 'lucide-react';
+import { FileJson, GitCompare, CheckSquare, StickyNote, Braces, Sparkles, Menu, X, ExternalLink, FlaskConical } from 'lucide-react';
 import { cn } from './lib/utils';
 import { JsonFormatter } from './tools/JsonFormatter';
 import { TextCompare }   from './tools/TextCompare';
 import { JsonCompare }   from './tools/JsonCompare';
 import { Todo }          from './tools/Todo';
 import { Notes }         from './tools/Notes';
+import { QAManager }     from './tools/QAManager';
 
 const TOOLS = [
   {
@@ -18,6 +19,7 @@ const TOOLS = [
     activeBg: 'bg-indigo-600',
     description: 'Format, validate & minify JSON',
     component: JsonFormatter,
+    fullscreen: false,
   },
   {
     id: 'json-compare',
@@ -29,6 +31,7 @@ const TOOLS = [
     activeBg: 'bg-violet-600',
     description: 'Deep-diff two JSON objects',
     component: JsonCompare,
+    fullscreen: false,
   },
   {
     id: 'text-compare',
@@ -40,6 +43,7 @@ const TOOLS = [
     activeBg: 'bg-rose-600',
     description: 'Side-by-side text diff viewer',
     component: TextCompare,
+    fullscreen: false,
   },
   {
     id: 'todo',
@@ -51,6 +55,7 @@ const TOOLS = [
     activeBg: 'bg-emerald-600',
     description: 'Simple task manager',
     component: Todo,
+    fullscreen: false,
   },
   {
     id: 'notes',
@@ -62,6 +67,19 @@ const TOOLS = [
     activeBg: 'bg-amber-600',
     description: 'Quick notes with auto-save',
     component: Notes,
+    fullscreen: false,
+  },
+  {
+    id: 'qa-manager',
+    label: 'QA Manager',
+    short: 'QA',
+    icon: FlaskConical,
+    color: 'text-teal-600',
+    bg: 'bg-teal-50',
+    activeBg: 'bg-teal-600',
+    description: 'Sprint test management + AI',
+    component: QAManager,
+    fullscreen: true,
   },
 ] as const;
 
@@ -156,31 +174,31 @@ export default function App() {
       )}
 
       {/* ── Main content ── */}
-      <main className="flex flex-1 flex-col min-w-0">
-        {/* Tool header */}
-        <header className="hidden lg:flex items-center gap-3 border-b border-slate-200 bg-white px-6 py-4">
-          <div className={cn('flex h-9 w-9 items-center justify-center rounded-xl', tool.bg)}>
-            <tool.icon className={cn('h-4.5 w-4.5', tool.color)} />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-slate-900">{tool.label}</h1>
-            <p className="text-xs text-slate-500">{tool.description}</p>
-          </div>
-
-          {/* Mobile-bottom-style tab strip for desktop quick switch */}
-          <div className="ml-auto flex items-center gap-1">
-            {TOOLS.map(t => (
-              <button key={t.id} onClick={() => setActive(t.id)}
-                className={cn('rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all',
-                  active === t.id ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100')}>
-                {t.short}
-              </button>
-            ))}
-          </div>
-        </header>
+      <main className="flex flex-1 flex-col min-w-0 overflow-hidden">
+        {/* Tool header — hidden for fullscreen tools */}
+        {!tool.fullscreen && (
+          <header className="hidden lg:flex items-center gap-3 border-b border-slate-200 bg-white px-6 py-4">
+            <div className={cn('flex h-9 w-9 items-center justify-center rounded-xl', tool.bg)}>
+              <tool.icon className={cn('h-4.5 w-4.5', tool.color)} />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900">{tool.label}</h1>
+              <p className="text-xs text-slate-500">{tool.description}</p>
+            </div>
+            <div className="ml-auto flex items-center gap-1">
+              {TOOLS.map(t => (
+                <button key={t.id} onClick={() => setActive(t.id)}
+                  className={cn('rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all',
+                    active === t.id ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100')}>
+                  {t.short}
+                </button>
+              ))}
+            </div>
+          </header>
+        )}
 
         {/* Tool content */}
-        <div className="flex-1 overflow-auto px-4 py-6 lg:px-6 pt-20 lg:pt-6">
+        <div className={cn('flex-1 overflow-auto', tool.fullscreen ? '' : 'px-4 py-6 lg:px-6 pt-20 lg:pt-6')}>
           <ActiveComponent />
         </div>
       </main>

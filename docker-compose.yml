@@ -1,4 +1,27 @@
 services:
+  appsmagic-tools-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: appsmagic-tools-api
+    restart: unless-stopped
+    environment:
+      - PORT=4000
+      - JWT_SECRET=${JWT_SECRET:-qa-tools-jwt-2026}
+      - DB_HOST=${DB_HOST:-appsmagic-mysql.cqb6s44uyv9b.us-east-1.rds.amazonaws.com}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_USER=${DB_USER:-admin}
+      - DB_PASS=${DB_PASS:-AppsMagic2026}
+      - DB_NAME=${DB_NAME:-qa_tools}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+    networks:
+      - appsmagic-tools-net
+
   appsmagic-tools-web:
     build:
       context: ./web
@@ -7,8 +30,16 @@ services:
     restart: unless-stopped
     ports:
       - "3003:80"
+    depends_on:
+      - appsmagic-tools-api
     logging:
       driver: json-file
       options:
         max-size: "5m"
         max-file: "2"
+    networks:
+      - appsmagic-tools-net
+
+networks:
+  appsmagic-tools-net:
+    driver: bridge
