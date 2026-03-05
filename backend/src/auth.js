@@ -39,6 +39,15 @@ router.post('/register', async (req, res) => {
   res.status(201).json({ id, name, email, role, avatar });
 });
 
+// POST /api/auth/refresh — extend session with a fresh token
+router.post('/refresh', authMiddleware, async (req, res) => {
+  const [rows] = await pool.execute('SELECT id, name, email, role, avatar FROM users WHERE id = ?', [req.user.id]);
+  if (!rows[0]) return res.status(404).json({ error: 'User not found' });
+  const u     = rows[0];
+  const token = jwt.sign({ id: u.id, email: u.email, name: u.name, role: u.role, avatar: u.avatar }, SECRET, { expiresIn: '14d' });
+  res.json({ token });
+});
+
 // GET /api/auth/me
 router.get('/me', authMiddleware, async (req, res) => {
   const [rows] = await pool.execute('SELECT id, name, email, role, avatar, created_at FROM users WHERE id = ?', [req.user.id]);

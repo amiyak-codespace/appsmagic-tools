@@ -55,6 +55,7 @@ export const auth = {
   register: (data: Partial<User> & { password: string }) => req<User>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   me:       () => req<User>('/auth/me'),
   users:    () => req<User[]>('/auth/users'),
+  refresh:  () => req<{ token: string }>('/auth/refresh', { method: 'POST' }),
 };
 
 // ── Releases ───────────────────────────────────────────────────────────

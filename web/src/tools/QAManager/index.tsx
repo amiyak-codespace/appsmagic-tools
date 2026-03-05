@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { LayoutDashboard, Rocket, FlaskConical, LogOut, Menu, X } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { LayoutDashboard, Rocket, FlaskConical, LogOut, Menu, X, AlertTriangle } from 'lucide-react';
 import { getToken, clearToken, auth, type User } from './api';
+import { useSession } from './useSession';
 import { Login }         from './Login';
 import { Dashboard }     from './Dashboard';
 import { Releases }      from './Releases';
@@ -25,6 +26,7 @@ export function QAManager() {
   const [params,     setParams]     = useState<Record<string, string>>({});
   const [editCase,   setEditCase]   = useState<any>(null);
   const [mobileNav,  setMobileNav]  = useState(false);
+  const [idleWarn,   setIdleWarn]   = useState<number | null>(null); // seconds left
 
   useEffect(() => {
     if (getToken()) {
@@ -41,7 +43,13 @@ export function QAManager() {
     window.scrollTo(0, 0);
   }
 
-  function logout() { clearToken(); setUser(null); }
+  function logout() { clearToken(); setUser(null); setIdleWarn(null); }
+
+  const handleWarn   = useCallback((s: number) => setIdleWarn(s), []);
+  const handleActive = useCallback(() => setIdleWarn(null), []);
+
+  // Session management — only active when logged in
+  useSession(user ? { onLogout: logout, onWarn: handleWarn, onActive: handleActive } : { onLogout: () => {}, onWarn: () => {}, onActive: () => {} });
 
   if (checking) return (
     <div className="flex items-center justify-center h-full min-h-[400px] bg-slate-50">
@@ -128,6 +136,23 @@ export function QAManager() {
 
       {/* Floating AI panel */}
       <AiPanel />
+
+      {/* Idle warning toast */}
+      {idleWarn !== null && (
+        <div className="fixed bottom-24 right-5 z-50 flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-xl shadow-amber-100/50 max-w-sm animate-in slide-in-from-bottom-4">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-amber-800">Session expiring</p>
+            <p className="text-xs text-amber-600">
+              You'll be logged out in <span className="font-bold">{idleWarn}s</span> due to inactivity
+            </p>
+          </div>
+          <button onClick={() => setIdleWarn(null)}
+            className="shrink-0 rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-bold text-amber-700 hover:bg-amber-200 transition-colors">
+            Stay
+          </button>
+        </div>
+      )}
     </div>
   );
 }
