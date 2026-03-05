@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileJson, GitCompare, CheckSquare, StickyNote, Braces, Sparkles, Menu, X, ExternalLink, FlaskConical } from 'lucide-react';
+import { FileJson, GitCompare, CheckSquare, StickyNote, Braces, Sparkles, Menu, X, ExternalLink, FlaskConical, Database } from 'lucide-react';
 import { cn } from './lib/utils';
 import { JsonFormatter } from './tools/JsonFormatter';
 import { TextCompare }   from './tools/TextCompare';
@@ -7,6 +7,7 @@ import { JsonCompare }   from './tools/JsonCompare';
 import { Todo }          from './tools/Todo';
 import { Notes }         from './tools/Notes';
 import { QAManager }     from './tools/QAManager';
+import { SqlFormatter }  from './tools/SqlFormatter';
 
 const TOOLS = [
   {
@@ -67,6 +68,18 @@ const TOOLS = [
     activeBg: 'bg-amber-600',
     description: 'Quick notes with auto-save',
     component: Notes,
+    fullscreen: false,
+  },
+  {
+    id: 'sql-formatter',
+    label: 'SQL Formatter',
+    short: 'SQL',
+    icon: Database,
+    color: 'text-sky-600',
+    bg: 'bg-sky-50',
+    activeBg: 'bg-sky-600',
+    description: 'Format & highlight SQL queries',
+    component: SqlFormatter,
     fullscreen: false,
   },
   {
