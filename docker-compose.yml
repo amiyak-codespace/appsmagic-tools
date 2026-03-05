@@ -7,7 +7,8 @@ services:
     restart: unless-stopped
     environment:
       - PORT=4000
-      - JWT_SECRET=${JWT_SECRET:-qa-tools-jwt-2026}
+      - SHARED_JWT_SECRET=${SHARED_JWT_SECRET:-appsmagic-shared-jwt-2026}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://appsmagic-auth:4002}
       - DB_HOST=${DB_HOST:-appsmagic-mysql.cqb6s44uyv9b.us-east-1.rds.amazonaws.com}
       - DB_PORT=${DB_PORT:-3306}
       - DB_USER=${DB_USER:-admin}
@@ -20,7 +21,7 @@ services:
         max-size: "5m"
         max-file: "2"
     networks:
-      - appsmagic-tools-net
+      - appsmagic-net
 
   appsmagic-tools-web:
     build:
@@ -38,8 +39,8 @@ services:
         max-size: "5m"
         max-file: "2"
     networks:
-      - appsmagic-tools-net
+      - appsmagic-net
 
 networks:
-  appsmagic-tools-net:
-    driver: bridge
+  appsmagic-net:
+    external: true
