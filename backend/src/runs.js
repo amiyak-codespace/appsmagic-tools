@@ -2,6 +2,15 @@ import express from 'express';
 import { v4 as uuid } from 'uuid';
 import { pool } from './db.js';
 
+function parseSteps(steps) {
+  if (!steps) return [];
+  if (Array.isArray(steps)) return steps;
+  if (typeof steps === 'string') {
+    try { return JSON.parse(steps); } catch { return []; }
+  }
+  return [];
+}
+
 const router = express.Router();
 
 // GET /api/runs?release_id=
@@ -65,7 +74,7 @@ router.get('/:id', async (req, res) => {
 
   const cases = execs.map(e => ({
     ...e,
-    steps: e.steps ? JSON.parse(e.steps) : [],
+    steps: parseSteps(e.steps),
   }));
 
   const stats = { total: cases.length, pass: 0, fail: 0, blocked: 0, skip: 0, pending: 0 };

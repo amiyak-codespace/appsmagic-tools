@@ -2,6 +2,15 @@ import express from 'express';
 import { v4 as uuid } from 'uuid';
 import { pool } from './db.js';
 
+function parseSteps(steps) {
+  if (!steps) return [];
+  if (Array.isArray(steps)) return steps;
+  if (typeof steps === 'string') {
+    try { return JSON.parse(steps); } catch { return []; }
+  }
+  return [];
+}
+
 const router = express.Router();
 
 // ── Suites ────────────────────────────────────────────────────────────
@@ -48,7 +57,7 @@ router.get('/', async (req, res) => {
   if (search)   { sql += ' AND tc.title LIKE ?'; vals.push(`%${search}%`); }
   sql += ' ORDER BY tc.created_at DESC';
   const [rows] = await pool.execute(sql, vals);
-  res.json(rows.map(r => ({ ...r, steps: r.steps ? JSON.parse(r.steps) : [] })));
+  res.json(rows.map(r => ({ ...r, steps: parseSteps(r.steps) })));
 });
 
 router.post('/', async (req, res) => {
@@ -66,7 +75,7 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const [[row]] = await pool.execute('SELECT * FROM test_cases WHERE id=?', [req.params.id]);
   if (!row) return res.status(404).json({ error: 'Not found' });
-  res.json({ ...row, steps: JSON.parse(row.steps || '[]') });
+  res.json({ ...row, steps: parseSteps(row.steps) });
 });
 
 router.patch('/:id', async (req, res) => {
