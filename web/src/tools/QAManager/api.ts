@@ -52,7 +52,12 @@ export interface Execution extends TestCase {
 // ── Auth ───────────────────────────────────────────────────────────────
 export const auth = {
   login:    (email: string, password: string) => req<{ token: string; user: User }>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-  register: (data: Partial<User> & { password: string }) => req<User>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+  register: (data: Partial<User> & {
+    password: string;
+    terms_accepted?: boolean;
+    privacy_accepted?: boolean;
+    consent_version?: string;
+  }) => req<User>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   me:       () => req<User>('/auth/me'),
   users:    () => req<User[]>('/auth/users'),
   refresh:  () => req<{ token: string }>('/auth/refresh', { method: 'POST' }),

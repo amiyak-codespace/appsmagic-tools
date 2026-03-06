@@ -28,14 +28,29 @@ router.post('/login', async (req, res) => {
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
-  const { name, email, password, role = 'qa_engineer', avatar = '🧑' } = req.body;
+  const {
+    name, email, password, role = 'qa_engineer', avatar = '🧑',
+    terms_accepted, privacy_accepted, consent_version,
+  } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'name, email, password required' });
+  if (!terms_accepted || !privacy_accepted) return res.status(400).json({ error: 'Terms and Privacy consent is required' });
   const [existing] = await pool.execute('SELECT id FROM users WHERE email = ?', [email]);
   if (existing[0]) return res.status(409).json({ error: 'Email already registered' });
   const id   = uuid();
   const hash = await bcrypt.hash(password, 10);
-  await pool.execute('INSERT INTO users (id, name, email, password, role, avatar) VALUES (?, ?, ?, ?, ?, ?)',
-    [id, name, email, hash, role, avatar]);
+  await pool.execute(
+    `INSERT INTO users
+      (id, name, email, password, role, avatar, terms_accepted, privacy_accepted, consented_at, consent_version)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
+    [id, name, email, hash, role, avatar, true, true, consent_version || '2026-03']
+  );
+  const ip = req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() || req.socket.remoteAddress || null;
+  const ua = req.headers['user-agent']?.toString() || null;
+  await pool.execute(
+    `INSERT INTO consent_events (user_id, consent_type, policy_version, accepted, source, ip_address, user_agent)
+     VALUES (?, 'terms', ?, TRUE, 'register', ?, ?), (?, 'privacy', ?, TRUE, 'register', ?, ?)`,
+    [id, consent_version || '2026-03', ip, ua, id, consent_version || '2026-03', ip, ua]
+  );
   res.status(201).json({ id, name, email, role, avatar });
 });
 

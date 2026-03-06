@@ -22,7 +22,26 @@ export async function initDb() {
       password   VARCHAR(255) NOT NULL,
       role       ENUM('qa_lead','qa_engineer','developer','viewer') DEFAULT 'qa_engineer',
       avatar     VARCHAR(10)  DEFAULT '🧑',
+      terms_accepted BOOLEAN DEFAULT FALSE,
+      privacy_accepted BOOLEAN DEFAULT FALSE,
+      consented_at DATETIME NULL,
+      consent_version VARCHAR(20) DEFAULT '2026-03',
       created_at DATETIME     DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS consent_events (
+      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      user_id VARCHAR(36) NOT NULL,
+      consent_type ENUM('terms','privacy') NOT NULL,
+      policy_version VARCHAR(20) NOT NULL,
+      accepted BOOLEAN NOT NULL DEFAULT TRUE,
+      accepted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      source VARCHAR(100) DEFAULT 'register',
+      ip_address VARCHAR(100),
+      user_agent VARCHAR(500),
+      INDEX idx_user (user_id),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
 
   await pool.execute(`
