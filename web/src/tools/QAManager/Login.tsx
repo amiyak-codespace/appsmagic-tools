@@ -10,6 +10,8 @@ export function Login({ onLogin }: Props) {
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
   const [showPw,   setShowPw]   = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
 
@@ -23,7 +25,13 @@ export function Login({ onLogin }: Props) {
         const { token, user } = await auth.login(email, password);
         setToken(token); onLogin(user);
       } else {
-        await auth.register({ name, email, password, avatar });
+        if (!acceptTerms || !acceptPrivacy) throw new Error('Accept Terms and Privacy Policy');
+        await auth.register({
+          name, email, password, avatar,
+          terms_accepted: true,
+          privacy_accepted: true,
+          consent_version: '2026-03',
+        });
         const { token, user } = await auth.login(email, password);
         setToken(token); onLogin(user);
       }
@@ -87,6 +95,18 @@ export function Login({ onLogin }: Props) {
                 </button>
               </div>
             </div>
+            {mode === 'register' && (
+              <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
+                <label className="flex items-start gap-2">
+                  <input type="checkbox" checked={acceptTerms} onChange={e => setAcceptTerms(e.target.checked)} className="mt-0.5" />
+                  <span>I agree to Terms and Conditions</span>
+                </label>
+                <label className="mt-1 flex items-start gap-2">
+                  <input type="checkbox" checked={acceptPrivacy} onChange={e => setAcceptPrivacy(e.target.checked)} className="mt-0.5" />
+                  <span>I agree to Privacy Policy</span>
+                </label>
+              </div>
+            )}
             {error && <p className="rounded-xl bg-rose-500/10 border border-rose-500/20 px-4 py-2.5 text-sm text-rose-400">{error}</p>}
             <button type="submit" disabled={loading}
               className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-teal-500 to-cyan-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-500/25 hover:opacity-90 disabled:opacity-60 transition-all mt-1">
