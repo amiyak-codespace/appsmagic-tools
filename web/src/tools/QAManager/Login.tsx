@@ -12,6 +12,7 @@ export function Login({ onLogin }: Props) {
   const [showPw,   setShowPw]   = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [acceptCookies, setAcceptCookies] = useState(false);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
 
@@ -25,7 +26,7 @@ export function Login({ onLogin }: Props) {
         const { token, user } = await auth.login(email, password);
         setToken(token); onLogin(user);
       } else {
-        if (!acceptTerms || !acceptPrivacy) throw new Error('Accept Terms and Privacy Policy');
+        if (!acceptTerms || !acceptPrivacy || !acceptCookies) throw new Error('Accept Terms, Privacy Policy, and Cookie Policy');
         await auth.register({
           name, email, password, avatar,
           terms_accepted: true,
@@ -99,11 +100,15 @@ export function Login({ onLogin }: Props) {
               <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
                 <label className="flex items-start gap-2">
                   <input type="checkbox" checked={acceptTerms} onChange={e => setAcceptTerms(e.target.checked)} className="mt-0.5" />
-                  <span>I agree to Terms and Conditions</span>
+                  <span>I agree to <a href="https://appsmagic.in/terms-and-conditions" target="_blank" rel="noreferrer" className="text-teal-300 underline">Terms and Conditions</a></span>
                 </label>
                 <label className="mt-1 flex items-start gap-2">
                   <input type="checkbox" checked={acceptPrivacy} onChange={e => setAcceptPrivacy(e.target.checked)} className="mt-0.5" />
-                  <span>I agree to Privacy Policy</span>
+                  <span>I agree to <a href="https://appsmagic.in/privacy-policy" target="_blank" rel="noreferrer" className="text-teal-300 underline">Privacy Policy</a></span>
+                </label>
+                <label className="mt-1 flex items-start gap-2">
+                  <input type="checkbox" checked={acceptCookies} onChange={e => setAcceptCookies(e.target.checked)} className="mt-0.5" />
+                  <span>I agree to <a href="https://appsmagic.in/cookie-policy" target="_blank" rel="noreferrer" className="text-teal-300 underline">Cookie Policy</a></span>
                 </label>
               </div>
             )}
