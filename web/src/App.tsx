@@ -150,6 +150,11 @@ export default function App() {
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-brand-600 transition-colors">
             <ExternalLink className="h-3 w-3" /> appsmagic.in
           </a>
+          <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+            <a href="https://appsmagic.in/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-600 transition-colors">Privacy</a>
+            <a href="https://appsmagic.in/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-600 transition-colors">Terms</a>
+            <a href="https://appsmagic.in/cookie-policy" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-600 transition-colors">Cookies</a>
+          </div>
         </div>
       </aside>
 
