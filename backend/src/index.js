@@ -6,6 +6,7 @@ import releasesRouter from './releases.js';
 import casesRouter    from './cases.js';
 import runsRouter     from './runs.js';
 import aiRouter       from './ai.js';
+import toolsAiRouter  from './tools_ai.js';
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -21,6 +22,7 @@ app.use('/api/releases', requireAuth, releasesRouter);
 app.use('/api/cases',    requireAuth, casesRouter);
 app.use('/api/runs',     requireAuth, runsRouter);
 app.use('/api/ai',       requireAuth, aiRouter);
+app.use('/api/tools-ai',  requireAuth, toolsAiRouter);
 app.get('/api/health',   (_req, res) => res.json({ ok: true, service: 'qa-tools' }));
 
 initDb()
