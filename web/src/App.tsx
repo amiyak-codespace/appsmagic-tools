@@ -12,6 +12,18 @@ import { SqlFormatter } from './tools/SqlFormatter';
 
 const TOOLS = [
   {
+    id: 'document-processor',
+    label: 'AI Doc Processor',
+    short: 'Almighty',
+    icon: BrainCircuit,
+    color: 'text-indigo-600',
+    bg: 'bg-indigo-50',
+    activeBg: 'bg-indigo-600',
+    description: 'Upload and let AI manipulate any file',
+    component: DocumentProcessor,
+    fullscreen: false,
+  },
+  {
     id: 'json-formatter',
     label: 'JSON Formatter',
     short: 'JSON',
