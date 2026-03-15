@@ -63,7 +63,7 @@ export function DocumentProcessor() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="w-full max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center gap-3 border-b border-white/10 pb-4">
         <BrainCircuit className="w-8 h-8 text-indigo-400" />
         <h1 className="text-2xl font-bold text-slate-100">Almighty AI Document Processor</h1>
@@ -95,7 +95,7 @@ export function DocumentProcessor() {
         <div className="space-y-4">
           <label className="block text-sm font-medium text-slate-300">2. Almighty AI Instructions</label>
           <textarea
-            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[120px]"
+            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[160px] resize-y"
             placeholder="e.g., 'Extract page 1 from this PDF', 'Convert this image to grayscale', 'Calculate the sum of the Price column in this CSV'"
             value={requirement}
             onChange={(e) => setRequirement(e.target.value)}
@@ -122,7 +122,7 @@ export function DocumentProcessor() {
             disabled={loading || !file || !requirement}
             className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl font-medium transition-colors"
           >
-            {loading ? <><RefreshCw className="w-4 h-4 animate-spin" /> Processing with AI...</> : <><Play className="w-4 h-4 fill-current" /> Run Almighty Processor</>}
+            {loading ? <><RefreshCw className="w-4 h-4 animate-spin" /> Processing with AI...</> : <><Play className="w-4 h-4 fill-current" /> Run Document Processor</>}
           </button>
         </div>
       </div>
