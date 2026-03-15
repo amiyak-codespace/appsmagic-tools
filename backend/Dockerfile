@@ -1,4 +1,5 @@
 FROM node:20-alpine
+RUN apk add --no-cache python3 py3-pip && pip3 install --break-system-packages PyMuPDF Pillow pandas google-generativeai
 ENV NODE_ENV=production
 WORKDIR /app
 COPY package*.json ./
