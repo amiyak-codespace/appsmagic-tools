@@ -10,10 +10,41 @@ const execAsync = util.promisify(exec);
 const router = express.Router();
 
 const upload = multer({ dest: '/tmp/uploads/' });
-
-// Ensure Gemini key is present
 const apiKey = process.env.GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey);
+
+const ALMIGHTY_SCRIPT_PATH = '/tmp/almighty_worker.py';
+const workerScript = `import sys
+import os
+import google.generativeai as genai
+
+def process_file(file_path, requirement, api_key):
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-3.1-pro-preview')
+    
+    ext = os.path.splitext(file_path)[1].lower()
+    out_path = file_path + "_output"
+    
+    prompt = f"You are an expert data processor. The file is at {file_path}. The requirement is: {requirement}. Generate ONLY raw executable Python code to fulfill this requirement and save the result to {out_path}. Use fitz for PDFs, Pillow for images. Do not use markdown blocks."
+    
+    response = model.generate_content(prompt)
+    code = response.text.replace('\`\`\`python', '').replace('\`\`\`', '').strip()
+    
+    try:
+        exec(code, globals())
+        print(f"SUCCESS: Saved to {out_path}")
+    except Exception as e:
+        print(f"ERROR executing code: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        sys.exit(1)
+    process_file(sys.argv[1], sys.argv[2], sys.argv[3])
+`;
+
+if (!fs.existsSync(ALMIGHTY_SCRIPT_PATH)) {
+    fs.writeFileSync(ALMIGHTY_SCRIPT_PATH, workerScript.replace(/\\\\/g, '\\'));
+}
 
 router.post('/process-document', upload.single('file'), async (req, res) => {
   try {
@@ -23,74 +54,28 @@ router.post('/process-document', upload.single('file'), async (req, res) => {
     if (!file) return res.status(400).json({ error: 'No file uploaded' });
     if (!requirement) return res.status(400).json({ error: 'Requirement string needed' });
 
-    // Step 1: Use AI to interpret the user requirement and generate a Python script to fulfill it.
-    // The script will execute locally on the file.
-    
     const ext = path.extname(file.originalname).lower();
     const filePath = file.path;
-    
-    // System instruction for the script generator
-    const prompt = `
-You are an Almighty Python script generator.
-The user has uploaded a file with extension "${ext}".
-The user's requirement is: "${requirement}"
+    const outputPath = `${filePath}_output`;
 
-Write a Python 3 script that reads the file at "${filePath}", performs the requested operation exactly as instructed, and saves the final result to "${filePath}_output".
-
-If the user wants a PDF manipulated (merged, split, edited, cropped, converted to images), use \`fitz\` (PyMuPDF).
-If the user wants an image manipulated or generated, use \`Pillow\` (PIL).
-If the user wants data parsed, use standard libraries or \`pandas\`.
-Do not wrap the code in markdown blocks like \`\`\`python. Only output the raw python code.
-
-Example structure:
-import sys
-import fitz
-input_file = "${filePath}"
-output_file = "${filePath}_output"
-# ... logic ...
-# Save to output_file
-`;
-
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-pro-preview' });
-    const result = await model.generateContent(prompt);
-    let pythonScript = result.response.text();
-    
-    // Clean markdown if accidentally included
-    pythonScript = pythonScript.replace(/^```python\n/g, '').replace(/```$/g, '');
-    
-    const scriptPath = `${filePath}_script.py`;
-    fs.writeFileSync(scriptPath, pythonScript);
-    
-    // Execute the script
     try {
-        const { stdout, stderr } = await execAsync(`python3 ${scriptPath}`);
-        
-        // Return the modified file
-        const outputPath = `${filePath}_output`;
+        const { stdout, stderr } = await execAsync(`python3 ${ALMIGHTY_SCRIPT_PATH} "${filePath}" "${requirement}" "${apiKey}"`);
         
         if (fs.existsSync(outputPath)) {
-            // Schedule cleanup after 10 mins (600,000 ms)
             setTimeout(() => {
                 if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-                if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath);
                 if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
             }, 10 * 60 * 1000);
             
-            // Set correct headers based on extension
-            if (ext === '.pdf') res.setHeader('Content-Type', 'application/pdf');
-            else if (['.jpg', '.jpeg'].includes(ext)) res.setHeader('Content-Type', 'image/jpeg');
-            else if (ext === '.png') res.setHeader('Content-Type', 'image/png');
-            
             res.setHeader('Content-Disposition', `attachment; filename="processed_${file.originalname}"`);
-            
             const fileStream = fs.createReadStream(outputPath);
             fileStream.pipe(res);
         } else {
-            throw new Error("Script executed but output file was not found. Output: " + stdout + " | " + stderr);
+            throw new Error("Worker executed but output file was not found. Output: " + stdout);
         }
     } catch (e) {
         console.error("Execution error:", e);
-        res.status(500).json({ error: 'Failed to process document', details: e.message, script: pythonScript });
+        res.status(500).json({ error: 'Failed to process document', details: e.message });
     }
 
   } catch (error) {
