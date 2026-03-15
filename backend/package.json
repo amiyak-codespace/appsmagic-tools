@@ -2,7 +2,9 @@
   "name": "appsmagic-tools-api",
   "version": "1.0.0",
   "type": "module",
-  "scripts": { "start": "node src/index.js" },
+  "scripts": {
+    "start": "node src/index.js"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -10,6 +12,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.5",
     "uuid": "^11.0.3",
-    "@google/generative-ai": "^0.21.0"
+    "@google/generative-ai": "^0.21.0",
+    "multer": "^1.4.5-lts.2"
   }
 }
