@@ -1,14 +1,14 @@
-import { BrainCircuit, useState } from 'react';
+import { useState } from 'react';
 import { BrainCircuit, FileJson, GitCompare, CheckSquare, StickyNote, Braces, Sparkles, Menu, X, ExternalLink, FlaskConical, Database } from 'lucide-react';
-import { BrainCircuit, cn } from './lib/utils';
-import { BrainCircuit, JsonFormatter } from './tools/JsonFormatter';
-import { BrainCircuit, DocumentProcessor } from './tools/DocumentProcessor';
-import { BrainCircuit, TextCompare }   from './tools/TextCompare';
-import { BrainCircuit, JsonCompare }   from './tools/JsonCompare';
-import { BrainCircuit, Todo }          from './tools/Todo';
-import { BrainCircuit, Notes }         from './tools/Notes';
-import { BrainCircuit, QAManager }     from './tools/QAManager';
-import { BrainCircuit, SqlFormatter }  from './tools/SqlFormatter';
+import { cn } from './lib/utils';
+import { JsonFormatter } from \'./tools/JsonFormatter';
+import { DocumentProcessor } from \'./tools/DocumentProcessor';
+import { TextCompare } from \'./tools/TextCompare';
+import { JsonCompare } from \'./tools/JsonCompare';
+import { Todo } from \'./tools/Todo';
+import { Notes } from \'./tools/Notes';
+import { QAManager } from \'./tools/QAManager';
+import { SqlFormatter } from \'./tools/SqlFormatter';
 
 const TOOLS = [
   {
